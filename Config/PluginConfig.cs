@@ -10,6 +10,7 @@ public class PluginConfig : BasePluginConfig
     [JsonPropertyName("CommandNames")] public string[] CommandNames { get; set; } = new[] { "servers" };
     [JsonPropertyName("QueryTimeoutMs")] public int QueryTimeoutMs { get; set; } = 900;
     [JsonPropertyName("CacheTtlSeconds")] public int CacheTtlSeconds { get; set; } = 5;
+    [JsonPropertyName("AdvertIntervalSeconds")] public int AdvertIntervalSeconds { get; set; } = 120;
     [JsonPropertyName("Servers")] public List<ServerEndpoint> Servers { get; set; } = new()
     {
         new ServerEndpoint { Name = "Public #1", Address = "127.0.0.1", Port = 27015 },

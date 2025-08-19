@@ -28,14 +28,15 @@ The plugin supports:
 - **Configurable query timeout & cache TTL**
 - **Language files** (`en.json`, `sk.json`) for easy localization
 - **Safe multithreading** – queries are offloaded, chat runs on main thread
+- **Automatic broadcast** – every X seconds (configurable), a random online server is advertised in chat
 
 ---
 
 ## 🔹 Commands
 
 1. **`servers`** – *Show servers list*
-   - Displays all configured servers with name, map, player count, and status.
-   - If a server is unreachable, shows it as offline.
+    - Displays all configured servers with name, map, player count, and status.
+    - If a server is unreachable, shows it as offline.
 
 ---
 
@@ -63,6 +64,7 @@ Config is generated on first run:
   "CommandNames": [ "servers" ],
   "QueryTimeoutMs": 900,
   "CacheTtlSeconds": 5,
+  "AdvertIntervalSeconds": 120,
   "Language": "en",
   "Servers": [
     { "Name": "Public #1", "Address": "127.0.0.1", "Port": 27015 },
@@ -75,6 +77,7 @@ Config is generated on first run:
 - **CommandNames** – command(s) registered for players.
 - **QueryTimeoutMs** – UDP query timeout in ms (200–5000).
 - **CacheTtlSeconds** – how long results are cached (0–30s).
+- **AdvertIntervalSeconds** – how often (in seconds) a random online server is advertised to all players (0 = disabled).
 - **Language** – `en` or `sk`.
 - **Servers** – list of endpoints (IP/host + port).
 
