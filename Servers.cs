@@ -15,7 +15,7 @@ namespace Servers;
 public class Servers : BasePlugin, IPluginConfig<PluginConfig>
 {
     public override string ModuleName => "Servers";
-    public override string ModuleVersion => "1.1";
+    public override string ModuleVersion => "1.2";
     public override string ModuleAuthor => "TICHOJEBEC";
 
     public PluginConfig Config { get; set; } = new();
@@ -39,6 +39,8 @@ public class Servers : BasePlugin, IPluginConfig<PluginConfig>
         if (string.IsNullOrWhiteSpace(config.ChatPrefix)) config.ChatPrefix = " {green}[Servers]{default}";
         if (config.CommandNames.Length == 0) config.CommandNames = new[] { "servers" };
         if (string.IsNullOrWhiteSpace(config.Language)) config.Language = "en";
+        
+        config.Servers ??= new List<ServerEndpoint>();
 
         foreach (var ep in config.Servers)
         {
@@ -107,8 +109,12 @@ public class Servers : BasePlugin, IPluginConfig<PluginConfig>
                 {
                     if (r.Q.Ok)
                     {
+                        var shownPlayers = Config.CountBots
+                            ? r.Q.Players
+                            : Math.Max(0, r.Q.Players - r.Q.Bots);
+
                         Chat.ToPlayer(player, Pref(_l["Servers.Line.Online"]),
-                            r.Index, r.Ep.Name, r.Q.Map, r.Q.Players, r.Q.MaxPlayers, r.Ep.Address, r.Ep.Port);
+                            r.Index, r.Ep.Name, r.Q.Map, shownPlayers, r.Q.MaxPlayers, r.Ep.Address, r.Ep.Port);
                     }
                     else
                     {
@@ -137,11 +143,14 @@ public class Servers : BasePlugin, IPluginConfig<PluginConfig>
             if (online.Length == 0) return;
 
             var pick = online[Random.Shared.Next(online.Length)];
+            var shownPlayers = Config.CountBots
+                ? pick.Q.Players
+                : Math.Max(0, pick.Q.Players - pick.Q.Bots);
 
             Server.NextFrame(() =>
             {
                 Chat.ToAllFmt(Pref(_l["Servers.Line.Online"]),
-                    0, pick.Ep.Name, pick.Q.Map, pick.Q.Players, pick.Q.MaxPlayers,
+                    0, pick.Ep.Name, pick.Q.Map, shownPlayers, pick.Q.MaxPlayers,
                     pick.Ep.Address, pick.Ep.Port);
             });
         });
@@ -152,6 +161,7 @@ public class Servers : BasePlugin, IPluginConfig<PluginConfig>
     public void OnReloadConfig(CCSPlayerController? player, CommandInfo cmd)
     {
         Config.Reload();
+        StartAdvertTimer();
         cmd.ReplyToCommand(_l["Servers.Reload.Done"]);
     }
 

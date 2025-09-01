@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Servers.Config;
@@ -9,7 +10,7 @@ public class ServerQuery
 {
     private readonly int _timeoutMs;
     private readonly TimeSpan _ttl;
-    private readonly Dictionary<string, (DateTime ts, QueryResult result)> _cache = new();
+    private readonly ConcurrentDictionary<string, (DateTime ts, QueryResult result)> _cache = new();
 
     public ServerQuery(int timeoutMs, int cacheTtlSeconds)
     {
@@ -23,9 +24,7 @@ public class ServerQuery
         if (_ttl > TimeSpan.Zero &&
             _cache.TryGetValue(key, out var entry) &&
             DateTime.UtcNow - entry.ts <= _ttl)
-        {
             return entry.result;
-        }
 
         var result = await QueryA2SInfo(ep, ct).ConfigureAwait(false);
         if (_ttl > TimeSpan.Zero)
@@ -39,6 +38,7 @@ public class ServerQuery
         public string Map { get; set; } = "unknown";
         public int Players { get; set; }
         public int MaxPlayers { get; set; }
+        public int Bots { get; set; }
     }
 
     private static IPEndPoint BuildEndpoint(ServerEndpoint ep)
@@ -81,7 +81,10 @@ public class ServerQuery
                 var resp = await udp.ReceiveAsync(cts.Token);
                 return resp.Buffer;
             }
-            catch { return null; }
+            catch
+            {
+                return null;
+            }
         }
 
         try
@@ -106,12 +109,12 @@ public class ServerQuery
             {
                 return new QueryResult { Ok = false };
             }
-            
-            int idx = 5;
+
+            var idx = 5;
 
             string ReadCString()
             {
-                int start = idx;
+                var start = idx;
                 while (idx < data.Length && data[idx] != 0x00) idx++;
                 var s = Encoding.UTF8.GetString(data, start, idx - start);
                 if (idx < data.Length) idx++;
@@ -130,16 +133,18 @@ public class ServerQuery
             idx += 2;
 
             if (idx + 2 >= data.Length) return new QueryResult { Ok = false };
-            var players    = data[idx++];
+            var players = data[idx++];
             var maxPlayers = data[idx++];
-            if (idx < data.Length) idx++;
+            var bots = 0;
+            if (idx < data.Length) bots = data[idx++];
 
             return new QueryResult
             {
                 Ok = true,
                 Map = string.IsNullOrWhiteSpace(map) ? "unknown" : map,
                 Players = players,
-                MaxPlayers = maxPlayers
+                MaxPlayers = maxPlayers,
+                Bots = bots
             };
         }
         catch

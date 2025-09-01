@@ -29,6 +29,7 @@ The plugin supports:
 - **Language files** (`en.json`, `sk.json`) for easy localization
 - **Safe multithreading** – queries are offloaded, chat runs on main thread
 - **Automatic broadcast** – every X seconds (configurable), a random online server is advertised in chat
+- **Option to ignore bots** – new `CountBots` config (default: true)
 
 ---
 
@@ -58,7 +59,7 @@ The plugin supports:
 ## ⚙️ Configuration
 
 Config is generated on first run:
-```
+```json
 {
   "ChatPrefix": "[SERVERS]",
   "CommandNames": [ "servers" ],
@@ -66,6 +67,7 @@ Config is generated on first run:
   "CacheTtlSeconds": 5,
   "AdvertIntervalSeconds": 120,
   "Language": "en",
+  "CountBots": true,
   "Servers": [
     { "Name": "Public #1", "Address": "127.0.0.1", "Port": 27015 },
     { "Name": "Public #2", "Address": "127.0.0.1", "Port": 27016 }
@@ -79,6 +81,7 @@ Config is generated on first run:
 - **CacheTtlSeconds** – how long results are cached (0–30s).
 - **AdvertIntervalSeconds** – how often (in seconds) a random online server is advertised to all players (0 = disabled).
 - **Language** – `en` or `sk`.
+- **CountBots** – if true, bot players are counted in totals (default: true).
 - **Servers** – list of endpoints (IP/host + port).
 
 ---

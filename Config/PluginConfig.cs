@@ -11,6 +11,9 @@ public class PluginConfig : BasePluginConfig
     [JsonPropertyName("QueryTimeoutMs")] public int QueryTimeoutMs { get; set; } = 900;
     [JsonPropertyName("CacheTtlSeconds")] public int CacheTtlSeconds { get; set; } = 5;
     [JsonPropertyName("AdvertIntervalSeconds")] public int AdvertIntervalSeconds { get; set; } = 120;
+    
+    [JsonPropertyName("CountBots")] public bool CountBots { get; set; } = true;
+
     [JsonPropertyName("Servers")] public List<ServerEndpoint> Servers { get; set; } = new()
     {
         new ServerEndpoint { Name = "Public #1", Address = "127.0.0.1", Port = 27015 },
